@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>SAKURAの時間貯金箱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=Kaisei+Decol&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#dbeafe; --bg2:#fdf2f8; --bg3:#ede9fe;
+  --card:#ffffff;
+  --muted:#7c8ca2;
+  --text:#374151;
+  --accent1:#7dd3fc;
+  --accent2:#f9a8d4;
+  --accent3:#c4b5fd;
+  --good:#34d399;
+  --bad:#f87171;
+  --radius:20px;
+  --shadow:0 8px 24px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Kaisei Decol',"Yu Gothic",sans-serif;
+background: linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+background-size: cover; background-position: center; transition: background-image 0.6s ease;}
+.wrap{max-width:1100px; margin:0 auto; padding:20px;}
+header{text-align:center;margin-bottom:18px;}
+header h1{font-family:'Cherry Bomb One',cursive;font-size:clamp(26px,7vw,44px);
+background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+-webkit-background-clip:text; -webkit-text-fill-color:transparent;
+margin:0;text-shadow:2px 2px 0 rgba(255,255,255,.6);}
+header p{margin:6px 0 0; font-size:14px; color:var(--muted);}
+.balanceCard{background:linear-gradient(135deg,rgba(125,211,252,.3),rgba(249,168,212,.3),rgba(196,181,253,.25));
+border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);}
+.balanceRow{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+.balance{font-size:clamp(28px,6vw,48px); font-weight:800; display:flex; align-items:center; gap:12px; font-family:'Cherry Bomb One', cursive; color:#2563eb;}
+.mascot{font-size:clamp(28px,6vw,48px); transition: transform .25s ease;}
+.row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+.inputGroup{display:flex; gap:8px; align-items:center; background:rgba(255,255,255,.7); border-radius:14px; padding:10px 12px; box-shadow: var(--shadow);}
+input[type="number"],input[type="date"],input[type="text"]{border:none; background:transparent; outline:none; font-size:16px;}
+input[type="number"]{width:90px;}
+button{border:none; border-radius:14px; padding:10px 14px; font-size:16px; cursor:pointer; transition:.2s; box-shadow: var(--shadow);}
+button.good{ background:#a7f3d0; color:#065f46; }
+button.bad{ background:#fecaca; color:#7f1d1d; }
+button:hover{ filter: brightness(.98); transform: translateY(-1px); }
+.grid{display:grid; gap:16px; margin-top:16px;}
+@media(min-width:880px){.grid{grid-template-columns:1.2fr .8fr;}}
+.card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px;}
+.card h3{margin:4px 0 12px; font-size:18px; color:#1e40af; font-family:'Cherry Bomb One';}
+.calendar{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+.dow,.day{text-align:center; padding:6px; border-radius:12px;}
+.dow{color:#7c8ca2; font-size:13px;}
+.day{min-height:88px; background:#f0f9ff; border:1px solid #e0f2fe; position:relative; display:flex; flex-direction:column; justify-content:flex-end; padding:6px;}
+.day .d{position:absolute; top:6px; left:6px; font-weight:700; font-size:14px; color:#1e3a8a;}
+.tag{font-size:12px; padding:4px 8px; border-radius:999px; margin-top:2px; align-self:flex-start; font-weight:700; cursor:pointer; user-select:none;}
+.tag.plus{background:#fbcfe8; color:#9d174d;}
+.tag.minus{background:#ddd6fe; color:#4c1d95;}
+.monthNav{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+canvas{width:100%; height:280px;}
+.footer{text-align:center; margin:20px 0 40px; color:#7c8ca2; font-size:12px;}
+.coin{position:fixed; top:-40px; left:50%; transform:translateX(-50%); font-size:30px; opacity:0; transition:.9s;}
+.coin.drop{opacity:1; transform:translate(-50%, 60vh) rotate(12deg) scale(1.3);}
+.rewardCard ul{list-style:none; padding:0;}
+.rewardCard li{background:#fef3c7; border-radius:14px; margin-bottom:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center;}
+.rewardCard li span{display:flex; align-items:center; gap:4px;}
+.rewardCard button{padding:4px 8px; font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🌸 SAKURAの時間貯金箱 🌸</h1>
+  <p>がんばった時間を楽しくためよう！</p>
+</header>
+<section class="balanceCard">
+  <div class="balanceRow">
+    <div class="balance">
+      <span class="mascot" id="mascot">🐰</span>
+      <span id="balanceMin">0</span> 分
+    </div>
+  </div>
+  <div class="row" style="margin-top:12px;">
+    <div class="inputGroup">
+      <span>日付：</span>
+      <input id="dateInput" type="date">
+    </div>
+    <div class="inputGroup">
+      <span>分：</span>
+      <input id="minutesInput" type="number" min="1" step="1" value="10">
+    </div>
+    <div class="row">
+      <button class="good" id="saveBtn">貯金</button>
+      <button class="bad" id="spendBtn">使う</button>
+    </div>
+  </div>
+</section>
+<div class="grid">
+  <section class="card">
+    <div class="monthNav">
+      <button id="prevMonth">←</button>
+      <div id="monthLabel"></div>
+      <button id="nextMonth">→</button>
+      <button id="toggleView">週/月切替</button>
+    </div>
+    <div class="calendar" id="calendar"></div>
+  </section>
+  <section class="card rewardCard">
+    <h3>ご褒美リスト（残高で交換）</h3>
+    <ul id="rewardList"></ul>
+    <div class="row">
+      <input type="text" id="rewardName" placeholder="ご褒美名">
+      <input type="number" id="rewardMin" placeholder="分" min="1">
+      <select id="rewardIcon">
+        <option value="🍪">🍪</option>
+        <option value="🧸">🧸</option>
+        <option value="🎀">🎀</option>
+        <option value="🎮">🎮</option>
+      </select>
+      <button id="addRewardBtn">追加</button>
+    </div>
+  </section>
+</div>
+<p class="footer">データはiPad内に保存されます</p>
+</div>
+<div class="coin" id="coin">⭐️</div>
+<script>
+// --- State ---
+const KEY='timebank_sakura_v4';
+let state=JSON.parse(localStorage.getItem(KEY)||'{"byDate":{},"rewards":[],"view":"month"}');
+function saveState(){ localStorage.setItem(KEY,JSON.stringify(state)); renderAll(); }
+// --- Elements ---
+const dateInput=document.getElementById('dateInput');
+const minutesInput=document.getElementById('minutesInput');
+const saveBtn=document.getElementById('saveBtn');
+const spendBtn=document.getElementById('spendBtn');
+const balanceMin=document.getElementById('balanceMin');
+const cal=document.getElementById('calendar');
+const monthLabel=document.getElementById('monthLabel');
+const prevMonthBtn=document.getElementById('prevMonth');
+const nextMonthBtn=document.getElementById('nextMonth');
+const toggleViewBtn=document.getElementById('toggleView');
+const rewardListEl=document.getElementById('rewardList');
+const rewardNameInput=document.getElementById('rewardName');
+const rewardMinInput=document.getElementById('rewardMin');
+const rewardIconSelect=document.getElementById('rewardIcon');
+const addRewardBtn=document.getElementById('addRewardBtn');
+const coinEl=document.getElementById('coin');
+// --- Helpers ---
+function todayStr(d=new Date()){const y=d.getFullYear(),m=('0'+(d.getMonth()+1)).slice(-2),day=('0'+d.getDate()).slice(-2);return`${y}-${m}-${day}`;}
+function setRecord(dateStr,type,min){if(!state.byDate[dateStr]) state.byDate[dateStr]={save:0,spend:0}; state.byDate[dateStr][type]=min; saveState(); animate(type);}
+function balance(){let s=0; for(const d in state.byDate){s+=(state.byDate[d].save||0)-(state.byDate[d].spend||0);} return s;}
+// --- Calendar ---
+let viewMonth=new Date(); dateInput.value=todayStr();
+prevMonthBtn.onclick=()=>{viewMonth.setMonth(viewMonth.getMonth()-1); renderCalendar();}
+nextMonthBtn.onclick=()=>{viewMonth.setMonth(viewMonth.getMonth()+1); renderCalendar();}
+toggleViewBtn.onclick=()=>{state.view=state.view==='month'?'week':'month'; saveState();}
+saveBtn.onclick=()=>setRecord(dateInput.value,'save',parseInt(minutesInput.value)); 
+spendBtn.onclick=()=>setRecord(dateInput.value,'spend',parseInt(minutesInput.value));
+function renderCalendar(){
+  const y=viewMonth.getFullYear(), m=viewMonth.getMonth();
+  monthLabel.textContent=`${y}年 ${m+1}月`; cal.innerHTML='';
+  const firstDay=new Date(y,m,1), lastDay=new Date(y,m+1,0);
+  const startWeek=firstDay.getDay();
+  for(let i=0;i<startWeek;i++){const d=document.createElement('div'); cal.appendChild(d);}
+  for(let d=1;d<=lastDay.getDate();d++){
+    const ds=todayStr(new Date(y,m,d)); const rec=state.byDate[ds]||{save:0,spend:0};
+    const day=document.createElement('div'); day.className='day'; day.onclick=()=>{dateInput.value=ds; minutesInput.value=rec.save||10;};
+    day.innerHTML=`<div class="d">${d}</div>${rec.save?`<div class="tag plus">+${rec.save}分</div>`:''}${rec.spend?`<div class="tag minus">-${rec.spend}分</div>`:''}`;
+    cal.appendChild(day);
+  }
+}
+// --- Reward ---
+function renderRewards(){
+  rewardListEl.innerHTML='';
+  state.rewards.forEach((r,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span>${r.icon} ${r.name} (${r.min}分)</span><div><button onclick="useReward(${i})">使う</button><button onclick="deleteReward(${i})">削除</button></div>`;
+    rewardListEl.appendChild(li);
+  });
+}
+function addReward(){
+  const name=rewardNameInput.value.trim(); const min=parseInt(rewardMinInput.value); const icon=rewardIconSelect.value;
+  if(name && min>0){state.rewards.push({name,min,icon}); rewardNameInput.value=''; rewardMinInput.value=''; saveState();}
+}
+function deleteReward(i){ state.rewards.splice(i,1); saveState();}
+function useReward(i){if(balance()>=state.rewards[i].min){ setRecord(todayStr(),'spend',state.rewards[i].min); alert(`${state.rewards[i].icon} ${state.rewards[i].name}を交換しました！`);}else{alert('残高不足です');}}
+// --- Animate ---
+function animate(type){ coinEl.textContent=type==='save'?'⭐️':'💖'; coinEl.classList.remove('drop'); void coinEl.offsetWidth; coinEl.classList.add('drop'); }
+// --- Render ---
+function renderAll(){ balanceMin.textContent=balance(); renderCalendar(); renderRewards(); }
+addRewardBtn.onclick=addReward; renderAll();
+</script>
+</body>
+</html>
