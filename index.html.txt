@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>SAKURAの時間貯金箱</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Baloo+2:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#dff6ff; --bg2:#fce4f7;
+      --ink:#374151; --muted:#6b7280;
+      --card:#ffffff; --ring:0 0 0 6px rgba(125,211,252,.35);
+      --shadow:0 8px 24px rgba(0,0,0,.08);
+      --accent:#0ea5e9;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Baloo 2',system-ui,-apple-system,"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--ink)}
+    header{text-align:center;background:linear-gradient(135deg,#a6e3f5,#fcd6f6);padding:16px 14px 8px;border-radius:0 0 20px 20px;box-shadow:var(--shadow);position:relative}
+    header h1{margin:0;font-size:clamp(24px,6vw,38px);color:#1e3a8a;letter-spacing:.5px;font-family:'Baloo 2',cursive;line-height:1.15}
+    header h1 .sakura{font-family:'Pacifico',cursive;color:#ff6fa9;font-size:1.12em;letter-spacing:.02em}
+    .rule-box{margin:8px auto 6px;background:#fffafc;border:2px dashed #ffb6d9;border-radius:14px;padding:8px 12px;max-width:980px;color:#444;font-size:clamp(14px,2.4vw,16px)}
+    .totalWrap{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 4px;}
+    .mascot{width:56px; height:56px; display:flex; align-items:center; justify-content:center; font-size:42px; transition: transform .2s ease; border-radius:12px; overflow:hidden; background: #fff; box-shadow: var(--shadow); border:2px solid #e5e7eb}
+    .mascot img{width:100%; height:100%; object-fit:cover;}
+    .total{font-weight:900;font-size:clamp(26px,6.5vw,48px); color:var(--accent); text-shadow: 0 2px 0 rgba(255,255,255,.6);}
+    .totalLabel{font-size:clamp(13px,2.6vw,15px); color:#1f2937;}
+    main{max-width:1120px;margin: 12px auto; padding: 0 12px 18px;}
+    .controls{display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:start;margin-bottom:10px}
+    .box{background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:var(--shadow);padding:10px 12px}
+    .box h4{margin:0 0 8px;font-size:16px;color:#1e40af}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+    label{font-size:14px;color:#374151;display:block;margin-bottom:4px}
+    input[type="number"]{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;font-size:16px}
+    .btn{padding:10px 14px;border:none;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);font-size:16px}
+    .btn.save{background:#a7f3d0;color:#065f46}
+    .btn.spend{background:#fecaca;color:#7f1d1d}
+    .btn.small{font-size:14px;padding:6px 10px}
+    .previewUnder{grid-column:1 / 2; margin-top:4px; color:#065f46; font-weight:800; text-align:left}
+    .actionRow{grid-column:1 / 3; display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:4px}
+    .previewInline{font-weight:900; color:#065f46; font-size:16px}
+    .settingsBtn{position:absolute; right:10px; top:10px}
+    .selectedLabel{text-align:center;margin:6px 0 10px;color:#6b7280;font-size:14px}
+    .calWrap{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:10px}
+    .monthBar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px}
+    .monthBar .title{font-weight:800;color:#1e40af}
+    .nav{display:flex;gap:8px}
+    .nav button{padding:6px 10px;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc}
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .dow{text-align:center;font-size:13px;color:#9ca3af;padding:6px 0}
+    .day{position:relative;min-height:78px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:6px;display:flex;align-items:center;justify-content:center;text-align:center;transition:box-shadow .2s ease,transform .05s ease;cursor:pointer}
+    .day:hover{transform:translateY(-1px)}
+    .day.selected{box-shadow:var(--ring)}
+    .day .num{position:absolute;top:6px;left:8px;font-weight:800;color:#1f2937}
+    .day .rec{font-size:14px;line-height:1.2;color:#374151;white-space:nowrap}
+    .day .rec .plus{color:#065f46;background:#d1fae5;padding:2px 6px;border-radius:999px;margin-right:4px}
+    .day .rec .minus{color:#7f1d1d;background:#fee2e2;padding:2px 6px;border-radius:999px}
+    .foot{text-align:center;color:#9ca3af;margin-top:8px;font-size:12px}
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,.4); padding:12px;}
+    .modal .inner{background:#fff; border-radius:16px; max-width:720px; width:100%; padding:16px; box-shadow: var(--shadow);}
+    .modal h3{margin:0 0 10px; color:#1e40af; font-size:18px}
+    .uploader{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;}
+    .slot{border:1px dashed #e5e7eb; border-radius:12px; padding:10px;}
+    .slot h5{margin:0 0 6px; font-size:14px; color:#374151;}
+    .slot .thumb{width:100%; height:96px; background:#f8fafc; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:6px; border:1px solid #e5e7eb}
+    .slot .thumb img{width:100%; height:100%; object-fit:cover;}
+    .modal .row{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px;}
+    .hint{font-size:12px; color:#6b7280}
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="sakura">SAKURA</span>の時間貯金箱</h1>
+    <button class="btn small settingsBtn" id="openSettings">⚙️ 設定</button>
+    <div class="rule-box">
+      ✨時間がたまるルール✨<br>
+      プリント1まいは15分のきまり。<br>
+      15分よりはやくできた分の時間が「ごほうびの時間」としてたまるよ！<br>
+      がんばってたくさんのプリントをすればするほど、じかんもいっぱいたまるよ！
+    </div>
+    <div class="totalWrap">
+      <div class="mascot" id="mascot"><span>🐰</span></div>
+      <div>
+        <div class="total" id="totalMinutes">0分</div>
+        <div class="totalLabel">いままでためた時間</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="controls">
+      <div class="box">
+        <h4>今日の貯金</h4>
+        <div class="grid2">
+          <div>
+            <label>何枚やった？</label>
+            <input id="sheetCount" type="number" min="1" step="1" value="1">
+            <div class="previewUnder" id="previewBase">15 × 1 = 15分</div>
+          </div>
+          <div>
+            <label>何分かかった？</label>
+            <input id="spentMin" type="number" min="0" step="1" placeholder="合計の分数">
+          </div>
+          <div class="actionRow">
+            <div class="previewInline" id="previewSave">今日の貯金：+15分</div>
+            <button class="btn save" id="saveBtn">貯金</button>
+          </div>
+        </div>
+      </div>
+      <div class="box">
+        <h4>時間を使う</h4>
+        <label>何分つかう？</label>
+        <input id="useMin" type="number" min="1" step="1" placeholder="使う分数">
+        <div style="text-align:right; margin-top:8px;">
+          <button class="btn spend" id="spendBtn">使う</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="selectedLabel" id="selectedLabel">日付をカレンダーから選んでね</div>
+    <div class="calWrap">
+      <div class="monthBar">
+        <div class="title" id="monthLabel"></div>
+        <div class="nav">
+          <button id="prevMonth">←</button>
+          <button id="nextMonth">→</button>
+        </div>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <div class="foot">※ この端末内に保存されます（外部送信なし）</div>
+    </div>
+  </main>
+
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="inner">
+      <h3>キャラクター設定（貯金ごとに9キャラ順番に変化）</h3>
+      <p class="hint">画像はこの端末のブラウザに保存されます</p>
+      <div class="uploader" id="uploader"></div>
+      <div class="row">
+        <div class="hint">現在の順番：<span id="orderHint">1</span> / 9</div>
+        <div>
+          <button class="btn small" id="resetCycle">順番リセット</button>
+          <button class="btn small" id="clearMascots">画像クリア</button>
+          <button class="btn small" id="closeSettings">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* === JavaScript 全文 === */
+    function dateStrLocal(d){ const y=d.getFullYear(), m=('0'+(d.getMonth()+1)).slice(-2), day=('0'+d.getDate()).slice(-2); return `${y}-${m}-${day}`; }
+    const KEY='timebank_v7';
+    const MASCOT9_KEY='timebank_mascots9_v1';
+    const CYCLE_KEY='timebank_cycle_idx_v1';
+    const state = JSON.parse(localStorage.getItem(KEY) || '{"byDate":{}}');
+    function persist(){ localStorage.setItem(KEY, JSON.stringify(state)); renderAll(); }
+    let mascots9 = JSON.parse(localStorage.getItem(MASCOT9_KEY) || '["","","","","","","","",""]');
+    function persistMascots(){ localStorage.setItem(MASCOT9_KEY, JSON.stringify(mascots9)); renderAll(); }
+    let cycleIdx = parseInt(localStorage.getItem(CYCLE_KEY)||'0',10) || 0;
+    let viewMonth = new Date();
+    let selectedDate = dateStrLocal(new Date());
+    const sheetCount=document.getElementById('sheetCount'),spentMin=document.getElementById('spentMin'),useMin=document.getElementById('useMin');
+    const previewBase=document.getElementById('previewBase'),previewSave=document.getElementById('previewSave');
+    const selectedLabel=document.getElementById('selectedLabel'),totalMinutesEl=document.getElementById('totalMinutes'),mascotEl=document.getElementById('mascot'),orderHint=document.getElementById('orderHint');
+    const fallback9=['🐰','🐱','🦄','🐻','🐼','🐨','🐯','🐸','👑'];
+    function computeSaved(){ const cnt=Math.max(1,parseInt(sheetCount.value||'1',10)); const spent=Math.max(0,parseInt(spentMin.value||'0',10)); return Math.max(0, 15*cnt - spent); }
+    function updateBasePreview(){ const cnt=Math.max(1,parseInt(sheetCount.value||'1',10)); previewBase.textContent=`15 × ${cnt} = ${15*cnt}分`; }
+    function updateSavePreview(){ previewSave.textContent=`今日の貯金：+${computeSaved()}分`; }
+    sheetCount.addEventListener('input', ()=>{ updateBasePreview(); updateSavePreview(); });
+    spentMin.addEventListener('input', updateSavePreview);
+    updateBasePreview(); updateSavePreview();
+    function totalBalance(){ let s=0,b=state.byDate||{}; for(const k in b){ s+=(b[k].save||0)-(b[k].spend||0);} return s; }
+    function updateMascotByCycle(){ const idx=(cycleIdx+8)%9; const url=mascots9[idx]; mascotEl.innerHTML=url?`<img src="${url}" alt="mascot">`:fallback9[idx]; orderHint.textContent=(cycleIdx%9)+1; }
+    function sparkle(){ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const now=ctx.currentTime; const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.type='triangle'; osc.frequency.setValueAtTime(880,now); osc.frequency.exponentialRampToValueAtTime(1760,now+0.18); gain.gain.setValueAtTime(0.0001,now); gain.gain.exponentialRampToValueAtTime(0.08,now+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,now+0.22); osc.connect(gain).connect(ctx.destination); osc.start(now); osc.stop(now+0.25);}
+    function setRecord(dateStr,type,minutes){ if(!state.byDate[dateStr]) state.byDate[dateStr]={save:0,spend:0}; state.byDate[dateStr][type]=Math.max(0,Math.floor(Number(minutes)||0)); persist();}
+    document.getElementById('saveBtn').onclick=()=>{ const saved=computeSaved(); setRecord(selectedDate,'save',saved); sparkle(); const used=cycleIdx; const url=mascots9[used]; mascotEl.innerHTML=url?`<img src="${url}" alt="mascot">`:fallback9[used]; mascotEl.style.transform='scale(1.12)'; setTimeout(()=>mascotEl.style.transform='',220); cycleIdx=(cycleIdx+1)%9; localStorage.setItem(CYCLE_KEY,String(cycleIdx)); orderHint.textContent=(cycleIdx%9)+1; };
+    document.getElementById('spendBtn').onclick=()=>{ const mins=Math.max(1,parseInt(useMin.value||'1',10)); setRecord(selectedDate,'spend',mins); };
+    const calEl=document.getElementById('calendar'),monthLabel=document.getElementById('monthLabel');
+    function renderCalendar(){ const y=viewMonth.getFullYear(),m=viewMonth.getMonth(); monthLabel.textContent=`${y}年 ${m+1}月`; calEl.innerHTML=''; ['日','月','火','水','木','金','土'].forEach(d=>{ const h=document.createElement('div'); h.className='dow'; h.textContent=d; calEl.appendChild(h);}); const start=new Date(y,m,1),end=new Date(y,m+1,0); const startDow=start.getDay(); for(let i=0;i<startDow;i++){ calEl.appendChild(document.createElement('div')); } for(let i=1;i<=end.getDate();i++){ const d=new Date(y,m,i); const ds=dateStrLocal(d);
