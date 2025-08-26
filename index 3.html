@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>SAKURAの時間貯金箱</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Baloo+2:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* === ここにCSS（前回と同じ） === */
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="sakura">SAKURA</span>の時間貯金箱</h1>
+    <button class="btn small settingsBtn" id="openSettings">⚙️ 設定</button>
+    <div class="rule-box">
+      ✨時間がたまるルール✨<br>
+      プリント1まいは15分のきまり。<br>
+      15分よりはやくできた分の時間が「ごほうびの時間」としてたまるよ！<br>
+      がんばってたくさんのプリントをすればするほど、じかんもいっぱいたまるよ！
+    </div>
+    <div class="totalWrap">
+      <div class="mascot" id="mascot"><span>🐰</span></div>
+      <div>
+        <div class="total" id="totalMinutes">0分</div>
+        <div class="totalLabel">いままでためた時間</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="controls">
+      <div class="box">
+        <h4>今日の貯金</h4>
+        <div class="grid2">
+          <div>
+            <label>何枚やった？</label>
+            <input id="sheetCount" type="number" min="1" step="1" value="1">
+            <div class="previewUnder" id="previewBase">15 × 1 = 15分</div>
+          </div>
+          <div>
+            <label>何分かかった？</label>
+            <input id="spentMin" type="number" min="0" step="1" placeholder="合計の分数">
+          </div>
+          <div class="actionRow">
+            <div class="previewInline" id="previewSave">今日の貯金：+15分</div>
+            <button class="btn save" id="saveBtn">貯金</button>
+          </div>
+        </div>
+      </div>
+      <div class="box">
+        <h4>時間を使う</h4>
+        <label>何分つかう？</label>
+        <input id="useMin" type="number" min="1" step="1" placeholder="使う分数">
+        <div style="text-align:right; margin-top:8px;">
+          <button class="btn spend" id="spendBtn">使う</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="selectedLabel" id="selectedLabel">日付をカレンダーから選んでね</div>
+    <div class="calWrap">
+      <div class="monthBar">
+        <div class="title" id="monthLabel"></div>
+        <div class="nav">
+          <button id="prevMonth">←</button>
+          <button id="nextMonth">→</button>
+        </div>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <div class="foot">※ この端末内に保存されます（外部送信なし）</div>
+    </div>
+  </main>
+
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="inner">
+      <h3>キャラクター設定（貯金ごとに9キャラ順番に変化）</h3>
+      <p class="hint">画像はこの端末のブラウザに保存されます</p>
+      <div class="uploader" id="uploader"></div>
+      <div class="row">
+        <div class="hint">現在の順番：<span id="orderHint">1</span> / 9</div>
+        <div>
+          <button class="btn small" id="resetCycle">順番リセット</button>
+          <button class="btn small" id="clearMascots">画像クリア</button>
+          <button class="btn small" id="closeSettings">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* === ここにJavaScript（前回と同じ） === */
+  </script>
+</body>
+</html>
